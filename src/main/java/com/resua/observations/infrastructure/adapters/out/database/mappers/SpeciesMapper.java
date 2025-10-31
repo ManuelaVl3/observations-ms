@@ -7,5 +7,6 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface SpeciesMapper {
     Species toModel(SpeciesEntity entity);
+    SpeciesEntity toEntity(Species model);
 }
 

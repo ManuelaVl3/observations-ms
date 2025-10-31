@@ -1,9 +1,14 @@
 package com.resua.observations.infrastructure.adapters.in.controller;
 
+import com.resua.observations.domain.models.Location;
 import com.resua.observations.domain.models.Register;
+import com.resua.observations.domain.models.Species;
 import com.resua.observations.infrastructure.adapters.in.request.ObservationRequestDTO;
 import com.resua.observations.infrastructure.adapters.in.response.GenericResponseDTO;
 import com.resua.observations.infrastructure.adapters.in.response.ObservationResponseDTO;
+import com.resua.observations.infrastructure.ports.in.CreateObservation;
+import com.resua.observations.infrastructure.ports.in.DeleteObservationById;
+import com.resua.observations.infrastructure.ports.in.GetObservationById;
 import com.resua.observations.infrastructure.ports.in.GetObservationByUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -32,6 +37,9 @@ import java.util.List;
 public class ObservationsController {
 
     private final GetObservationByUser getObservationByUser;
+    private final GetObservationById getObservationById;
+    private final DeleteObservationById deleteObservationById;
+    private final CreateObservation createObservation;
 
     @PostMapping
     @Operation(
@@ -44,7 +52,7 @@ public class ObservationsController {
             description = "Observación creada exitosamente",
             content = @Content(
                 mediaType = "application/json",
-                schema = @Schema(implementation = GenericResponseDTO.class)
+                schema = @Schema(implementation = Register.class)
             )
         ),
         @ApiResponse(
@@ -56,10 +64,9 @@ public class ObservationsController {
             description = "Error interno del servidor"
         )
     })
-    public ResponseEntity<GenericResponseDTO> add(@RequestBody ObservationRequestDTO observationR) {
-        GenericResponseDTO response = new GenericResponseDTO("El registro se ha agregado correctamente");
-
-        return ResponseEntity.ok(response);
+    public ResponseEntity<Register> add(@RequestBody ObservationRequestDTO observationDTO) {
+        Register createdRegister = createObservation.createObservation(observationDTO);
+        return ResponseEntity.ok(createdRegister);
     }
 
     @Operation(
@@ -105,8 +112,8 @@ public class ObservationsController {
                     )
             ),
             @ApiResponse(
-                    responseCode = "400",
-                    description = "Datos de entrada inválidos"
+                    responseCode = "404",
+                    description = "Observación no encontrada"
             ),
             @ApiResponse(
                     responseCode = "500",
@@ -115,9 +122,14 @@ public class ObservationsController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<GenericResponseDTO> delete(@PathVariable Long id) {
-        GenericResponseDTO response = new GenericResponseDTO("El registro con id: " + id + " se ha eliminado correctamente");
-
-        return ResponseEntity.ok(response);
+        boolean deleted = deleteObservationById.deleteObservationById(id);
+        
+        if (deleted) {
+            GenericResponseDTO response = new GenericResponseDTO("El registro con id: " + id + " se ha eliminado correctamente");
+            return ResponseEntity.ok(response);
+        }
+        
+        return ResponseEntity.notFound().build();
     }
 
     @Operation(
@@ -152,7 +164,7 @@ public class ObservationsController {
 
     @Operation(
             summary = "Obtener un registro de avistamiento",
-            description = "Obtiene un registro de avistamiento"
+            description = "Obtiene un registro de avistamiento por su ID"
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -160,12 +172,12 @@ public class ObservationsController {
                     description = "Observación obtenida exitosamente",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = GenericResponseDTO.class)
+                            schema = @Schema(implementation = Register.class)
                     )
             ),
             @ApiResponse(
-                    responseCode = "400",
-                    description = "Datos de entrada inválidos"
+                    responseCode = "404",
+                    description = "Observación no encontrada"
             ),
             @ApiResponse(
                     responseCode = "500",
@@ -173,76 +185,9 @@ public class ObservationsController {
             )
     })
     @GetMapping
-    public ResponseEntity<ObservationResponseDTO> getObservation(@RequestParam("id") Long id) {
-        ObservationResponseDTO response =  new ObservationResponseDTO("Rana de Cristal", "Espadarana prosoblepon", "el modelo");
-
-        return ResponseEntity.ok(response);
-    }
-
-    @Operation(
-            summary = "Obtener un registro de avistamiento por palabra clave, categoría, ubicación",
-            description = "Obtiene un registro de avistamiento por palabra clave, categoría, ubicación"
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Observación obtenida exitosamente",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = GenericResponseDTO.class)
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Datos de entrada inválidos"
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "Error interno del servidor"
-            )
-    })
-    @GetMapping("/search")
-    public ResponseEntity<List<ObservationResponseDTO>> searchObservation(@RequestParam("keyword") String keyword,
-                                                                          @RequestParam("category") String category,
-                                                                          @RequestParam("location") String location) {
-        List<ObservationResponseDTO> response = List.of(
-                new ObservationResponseDTO("Rana de Cristal", "Espadarana prosoblepon", "Genesis"),
-                new ObservationResponseDTO("Rana de Pijao", "Nymphargus pijao", "Genesis")
-        );
-
-        return ResponseEntity.ok(response);
-    }
-
-    @Operation(
-            summary = "Obtener una lista de sugerencias de búsqueda",
-            description = "Obtiene una lista de sugerencias de búsqueda"
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Sguerencias obtenidas exitosamente",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = GenericResponseDTO.class)
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Datos de entrada inválidos"
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "Error interno del servidor"
-            )
-    })
-    @GetMapping("/suggestions")
-    public ResponseEntity<List<String>> suggestionObservation(@RequestParam("sentence") String sentence) {
-        List<String> response = List.of(
-                new String("Aotus lemurinus"),
-                new String("Aotus griseimembra"),
-                new String("Aotus brumbacki")
-        );
-
-        return ResponseEntity.ok(response);
+    public ResponseEntity<Register> getObservation(@RequestParam("id") Long id) {
+        return getObservationById.getObservationById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 }

@@ -11,4 +11,5 @@ public interface RegisterMapper {
 
     Register toModel(RegisterEntity entity);
     List<Register> toModel(List<RegisterEntity> entities);
+    RegisterEntity toEntity(Register model);
 }

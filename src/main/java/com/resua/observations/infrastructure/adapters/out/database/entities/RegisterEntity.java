@@ -17,19 +17,20 @@ import java.util.List;
 @NoArgsConstructor
 public class RegisterEntity {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
     @Column(name = "user_id")
     private Long userId;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "species_id",
             foreignKey = @ForeignKey(name = "fk_registers_species"),
             nullable = false)
     private SpeciesEntity species;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "location_id",
             foreignKey = @ForeignKey(name = "fk_registers_location"),
             nullable = false)

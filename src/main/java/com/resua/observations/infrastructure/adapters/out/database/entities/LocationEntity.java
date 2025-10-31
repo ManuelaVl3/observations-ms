@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class LocationEntity {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
