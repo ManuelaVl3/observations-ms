@@ -1,7 +1,3 @@
--- Script para poblar las tablas de observaciones
--- Ejecutar después de que el schema esté creado
-
--- Insertar especies (diversos tipos de animales)
 INSERT INTO species (common_name, scientific_name) VALUES
 -- Aves
 ('Colibrí esmeralda', 'Amazilia franciae'),

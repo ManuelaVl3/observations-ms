@@ -1,14 +1,17 @@
-package com.resua.observations.infrastructure.input.controller;
+package com.resua.observations.infrastructure.adapters.in.controller;
 
-import com.resua.observations.infrastructure.input.request.ObservationRequestDTO;
-import com.resua.observations.infrastructure.input.response.GenericResponseDTO;
-import com.resua.observations.infrastructure.input.response.ObservationResponseDTO;
+import com.resua.observations.domain.models.Register;
+import com.resua.observations.infrastructure.adapters.in.request.ObservationRequestDTO;
+import com.resua.observations.infrastructure.adapters.in.response.GenericResponseDTO;
+import com.resua.observations.infrastructure.adapters.in.response.ObservationResponseDTO;
+import com.resua.observations.infrastructure.ports.in.GetObservationByUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,13 +23,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("observations")
 @Tag(name = "Observations", description = "API para gestionar observaciones de especies silvestres")
 public class ObservationsController {
+
+    private final GetObservationByUser getObservationByUser;
 
     @PostMapping
     @Operation(
@@ -138,13 +143,11 @@ public class ObservationsController {
             )
     })
     @GetMapping("/user")
-    public ResponseEntity<List<ObservationResponseDTO>> getAllByUserId(@RequestParam("id") Long userId) {
-        List<ObservationResponseDTO> response = List.of(
-                new ObservationResponseDTO("Rana de Cristal", "Espadarana prosoblepon", "el modelo"),
-                new ObservationResponseDTO("Rana de Pijao", "Nymphargus pijao", "Genesis")
-        );
+    public ResponseEntity<List<Register>> getAllByUserId(@RequestParam("id") Long userId) {
 
-        return ResponseEntity.ok(response);
+        List<Register> registers = getObservationByUser.getObservationsByUser(userId);
+
+        return ResponseEntity.ok(registers);
     }
 
     @Operation(

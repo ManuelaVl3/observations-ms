@@ -1,0 +1,34 @@
+package com.resua.observations.infrastructure.adapters.out.database.entities;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
+
+@Table(name = "species")
+@Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class SpeciesEntity {
+
+    @Id
+    @Column(name = "id")
+    private Long id;
+
+    @Column(name = "common_name")
+    private String commonName;
+
+    @Column(name = "scientific_name")
+    private String scientificName;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+}

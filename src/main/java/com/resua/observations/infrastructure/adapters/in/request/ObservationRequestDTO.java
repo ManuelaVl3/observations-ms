@@ -1,4 +1,4 @@
-package com.resua.observations.infrastructure.input.request;
+package com.resua.observations.infrastructure.adapters.in.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
