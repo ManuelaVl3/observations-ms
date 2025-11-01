@@ -19,57 +19,66 @@ public class RegisterAdapter {
     private final RegisterMapper registerMapper;
 
     public List<Register> getObservationsByUser(Long userId) {
-
         List<RegisterEntity> registerEntities = registerRepository.findAllByUserId(userId);
-
-        List<Register> registers = registerMapper.toModel(registerEntities);
-
-        return registers;
+        return registerMapper.toModel(registerEntities);
     }
 
     public Optional<Register> getObservationById(Long id) {
-
-        Optional<RegisterEntity> registerEntity = registerRepository.findByIdWithRelations(id);
-
-        return registerEntity.map(registerMapper::toModel);
+        return registerRepository.findByIdWithRelations(id).map(registerMapper::toModel);
     }
 
     public boolean deleteObservationById(Long id) {
-
         if (registerRepository.existsById(id)) {
             registerRepository.deleteById(id);
             return true;
         }
-
         return false;
     }
 
     public Register createObservation(Register register) {
-        
-        // Establecer timestamps
         LocalDateTime now = LocalDateTime.now();
         register.setCreatedAt(now);
         register.setUpdatedAt(now);
         
-        // Establecer timestamps en species
         if (register.getSpecies() != null) {
             register.getSpecies().setCreatedAt(now);
             register.getSpecies().setUpdatedAt(now);
         }
         
-        // Establecer timestamps en location
         if (register.getLocation() != null) {
             register.getLocation().setCreatedAt(now);
             register.getLocation().setUpdatedAt(now);
         }
         
-        // Convertir a entidad
         RegisterEntity entity = registerMapper.toEntity(register);
         
-        // Guardar en la base de datos
-        RegisterEntity savedEntity = registerRepository.save(entity);
+        if (entity.getImages() != null) {
+            entity.getImages().forEach(image -> image.setRegister(entity));
+        }
         
-        // Convertir de vuelta a modelo
+        RegisterEntity savedEntity = registerRepository.save(entity);
+        return registerMapper.toModel(savedEntity);
+    }
+
+    public Register updateObservation(Register register) {
+        LocalDateTime now = LocalDateTime.now();
+        register.setUpdatedAt(now);
+        
+        if (register.getSpecies() != null) {
+            register.getSpecies().setUpdatedAt(now);
+        }
+        
+        if (register.getLocation() != null) {
+            register.getLocation().setUpdatedAt(now);
+        }
+        
+        RegisterEntity entity = registerMapper.toEntity(register);
+        
+        if (entity.getImages() != null) {
+            entity.getImages().forEach(image -> image.setRegister(entity));
+        }
+        
+        RegisterEntity savedEntity = registerRepository.save(entity);
         return registerMapper.toModel(savedEntity);
     }
 }

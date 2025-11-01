@@ -10,6 +10,7 @@ import com.resua.observations.infrastructure.ports.in.CreateObservation;
 import com.resua.observations.infrastructure.ports.in.DeleteObservationById;
 import com.resua.observations.infrastructure.ports.in.GetObservationById;
 import com.resua.observations.infrastructure.ports.in.GetObservationByUser;
+import com.resua.observations.infrastructure.ports.in.UpdateObservation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -40,6 +41,7 @@ public class ObservationsController {
     private final GetObservationById getObservationById;
     private final DeleteObservationById deleteObservationById;
     private final CreateObservation createObservation;
+    private final UpdateObservation updateObservation;
 
     @PostMapping
     @Operation(
@@ -79,8 +81,12 @@ public class ObservationsController {
                     description = "Observación editada exitosamente",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = GenericResponseDTO.class)
+                            schema = @Schema(implementation = Register.class)
                     )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Observación no encontrada"
             ),
             @ApiResponse(
                     responseCode = "400",
@@ -92,10 +98,10 @@ public class ObservationsController {
             )
     })
     @PatchMapping("/{id}")
-    public ResponseEntity<GenericResponseDTO> update(@RequestBody ObservationRequestDTO observationR, @PathVariable Long id) {
-        GenericResponseDTO response = new GenericResponseDTO("El registro con id: " + id + " se ha editado correctamente");
-
-        return ResponseEntity.ok(response);
+    public ResponseEntity<Register> update(@RequestBody ObservationRequestDTO observationDTO, @PathVariable Long id) {
+        return updateObservation.updateObservation(id, observationDTO)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @Operation(

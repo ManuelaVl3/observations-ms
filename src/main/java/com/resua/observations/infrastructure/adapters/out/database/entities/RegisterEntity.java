@@ -24,7 +24,7 @@ public class RegisterEntity {
     @Column(name = "user_id")
     private Long userId;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "species_id",
             foreignKey = @ForeignKey(name = "fk_registers_species"),
             nullable = false)
