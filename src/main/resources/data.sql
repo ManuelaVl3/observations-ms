@@ -110,11 +110,3 @@ INSERT INTO register_images (register_id, image_url, image_order) VALUES
 (22, 'https://example.com/images/rana_dorada_001.jpg', 1),
 (23, 'https://example.com/images/salamandra_001.jpg', 1);
 
--- Verificar los datos insertados
-SELECT 'Species count: ' || COUNT(*) as info FROM species
-UNION ALL
-SELECT 'Locations count: ' || COUNT(*) as info FROM locations
-UNION ALL
-SELECT 'Registers count: ' || COUNT(*) as info FROM registers
-UNION ALL
-SELECT 'Images count: ' || COUNT(*) as info FROM register_images;
